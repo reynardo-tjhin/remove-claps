@@ -1,6 +1,6 @@
 from moviepy.editor import *
 from pydub import AudioSegment
-
+import os
 
 def convertMP4toMP3(video_name="sample"):
     """
@@ -8,15 +8,17 @@ def convertMP4toMP3(video_name="sample"):
 
     Requires: MoviePy module.
     """
-    VIDEO_FILE_PATH = "./" + video_name + ".mp4"
-    AUDIO_FILE_PATH = "./" + video_name + ".mp3"
+    video_name = video_name.strip(".mp4")
+
+    VIDEO_FILE_PATH = "./audio/mp4/" + video_name + ".mp4"
+    AUDIO_FILE_PATH = "./audio/mp3/" + video_name + ".mp3"
 
     FILETOCONVERT = AudioFileClip(VIDEO_FILE_PATH)
     FILETOCONVERT.write_audiofile(AUDIO_FILE_PATH)
     FILETOCONVERT.close()
 
 
-def split(start: int, end: int, audio_name="sample"):
+def split(start: int, end: int, audio_name="sample", audio_result_name="sample"):
     """
     Split and create an mp3 from the start and end time of the audio segment.
 
@@ -28,27 +30,37 @@ def split(start: int, end: int, audio_name="sample"):
         return
 
     # write the audio file path
-    AUDIO_FILE_PATH = "./" + audio_name + ".mp3"
+    AUDIO_FILE_PATH = "." + audio_name + ".mp3"
 
     # create a sound object using pydub module
     sound = AudioSegment.from_file(AUDIO_FILE_PATH, format="mp3")
 
     # grab the first five seconds of the audio
-    first_five_seconds = sound[start:end]
+    first_seconds = sound[start:end]
 
     # simple export to 2 different file formats: wav and mp3
-    first_five_seconds.export("test.mp3", format="mp3")
-    first_five_seconds.export("test.wav", format="wav")
+    # first_five_seconds.export("test.mp3", format="mp3")
+    first_seconds.export("test.wav", format="wav")
 
 
 # main
 if (__name__ == "__main__"):
 
-    print("Converting MP4 to MP3 and getting only the first 5 seconds of the audio")
+    end_time = 50
 
-    # converting mp4 to mp3
-    convertMP4toMP3()
+    print(f"Converting MP4 to MP3 and getting only the first {end_time} seconds of the audio")
 
-    # testing splitting audio
-    split(0, 5000)
+    for name in os.listdir("audio/mp4"):
+
+        name = name.replace(".mp4", "")
+        if (not os.path.exists("audio/mp3/" + name + ".mp3")):
+
+            # converting mp4 to mp3
+            convertMP4toMP3(video_name=name)
+
+        # testing splitting audio
+        # split(0, end_time * 1000, audio_name=name, audio_result_name=name)
+
+        else:
+            print(f"{name} found... Skipping...")
 
