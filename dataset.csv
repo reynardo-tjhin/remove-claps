@@ -1,13 +1,21 @@
-audio_name,clap_end,music_start
-REMASTERED Yunchan Lim 임윤찬 – RACHMANINOV Piano Concerto No 3 in D Minor op 30,11,32
-Seong-Jin Cho – Piano Concerto in E minor Op 11 (final stage of the Chopin Competition 2015),21,34
-BRUCE (XIAOYU) LIU – final round (18th Chopin Competition, Warsaw),16,41
-Tchaikovsky Piano Concerto No 1 FULL / Martha Argerich, piano - Charles Dutoit, conductor,14,35
-TCHAIKOVSKY ~ Piano Concerto No. 1 in B-flat minor - LANG LANG / Järvi,4,13
-Martha Argerich - Rachmaninov Piano Concerto No. 3,48,60
-P. I. Tchaikovsky - Violin Concerto in D major　Itzhak　Perlman,39,49
-Ray Chen Mendelssohn Violin Concerto in E minor, Op. 64,15,20
-Ray Chen SIBELIUS Violin Concerto in D minor, Op. 47,15,31
-Janine Jansen - Mendelssohn Violin Concerto in E minor, Op. 64,19,32
-David Oistrakh & Igor Oistrakh - Mozart Sinfonia Concertante, K364,28,64
-David Oistrakh - Brahms Violin Concerto in D Major, Op. 77,31,55
+audio_name,clap_start,clap_end,music_start,music_end,end_clap_start
+audio0,0,11,32,2551,2552
+audio1,0,22,34,2418,2419
+audio2,0,17,41,2423,2424
+audio3,0,15,35,2017,2018
+audio4,0,5,13,2128,2129
+audio5,34,49,60,2480,2481
+audio6,5,40,49,2180,2181
+audio7,0,16,20,1712,1713
+audio8,0,16,31,1886,1888
+audio9,15,21,32,1665,1667
+audio10,0,30,64,1992,1993
+audio11,0,32,55,2390,2391
+audio12,0,14,30,2262,2263
+audio13,3,10,12,3970,3974
+audio14,0,35,38,384,386
+audio15,0,19,30,1557,1558
+audio16,16,48,57,1984,1985
+audio17,0,31,41,2399,2400
+audio18,0,20,41,1990,1991
+audio19,0,26,44,1660,1662
