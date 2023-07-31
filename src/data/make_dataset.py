@@ -124,14 +124,42 @@ if (__name__ == "__main__"):
         clap_start_time = data.loc[i, 'clap_start'] * 1000
         clap_end_time = data.loc[i, 'clap_end'] * 1000
 
+        end_clap_time = data.loc[i, 'end_clap_start'] * 1000
+        audio_end_time = data.loc[i, 'audio_end'] * 1000
+
         # keep splitting the audio based on the duration given
         while (clap_start_time + duration < clap_end_time):
+
+            if (os.path.exists("data/yes/" + f"{j}.wav")):
+                clap_start_time += duration
+                j += 1
+                continue
 
             # split and export the resulting audio to current directory
             split(clap_start_time, clap_start_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
             
             # move to the next start time
             clap_start_time += duration
+
+            # move to the data
+            os.rename(f"./{j}.wav", f"./data/yes/{j}.wav")
+
+            # for data audio name
+            j += 1
+
+        # split the other end part of the audio (clapping hands)
+        while (end_clap_time + duration < audio_end_time):
+
+            if (os.path.exists("data/yes/" + f"{j}.wav")):
+                end_clap_time += duration
+                j += 1
+                continue
+
+            # split and export the resulting audio to current directory
+            split(end_clap_time, end_clap_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
+            
+            # move to the next start time
+            end_clap_time += duration
 
             # move to the data
             os.rename(f"./{j}.wav", f"./data/yes/{j}.wav")
@@ -154,6 +182,11 @@ if (__name__ == "__main__"):
 
         # keep splitting the audio based on the duration given
         while (clap_end_time + duration < music_start_time):
+
+            if (os.path.exists("data/yes/" + f"{j}.wav")):
+                clap_end_time += duration
+                j += 1
+                continue
 
             # split and export the resulting audio to current directory
             split(clap_end_time, clap_end_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))

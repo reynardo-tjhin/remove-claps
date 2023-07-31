@@ -8,3 +8,5 @@ clean-data-only:
 clean:
 	rm -rf audio; \
 	rm -rf data;
+
+.PHONY: all data clean
