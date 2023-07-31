@@ -121,13 +121,10 @@ if (__name__ == "__main__"):
     for audio in data.loc[:, 'audio_name']:
 
         print(f"splitting {audio}.mp3")
+
+        # clapping before performance
         clap_start_time = data.loc[i, 'clap_start'] * 1000
         clap_end_time = data.loc[i, 'clap_end'] * 1000
-
-        end_clap_time = data.loc[i, 'end_clap_start'] * 1000
-        audio_end_time = data.loc[i, 'audio_end'] * 1000
-
-        # keep splitting the audio based on the duration given
         while (clap_start_time + duration < clap_end_time):
 
             if (os.path.exists("data/yes/" + f"{j}.wav")):
@@ -147,7 +144,9 @@ if (__name__ == "__main__"):
             # for data audio name
             j += 1
 
-        # split the other end part of the audio (clapping hands)
+        # clapping after performance
+        end_clap_time = data.loc[i, 'end_clap_start'] * 1000
+        audio_end_time = data.loc[i, 'audio_end'] * 1000
         while (end_clap_time + duration < audio_end_time):
 
             if (os.path.exists("data/yes/" + f"{j}.wav")):
@@ -170,17 +169,18 @@ if (__name__ == "__main__"):
         # loop through each audio
         i += 1
 
+
     print()
+
 
     # making a "no" class
     i = 0
     for audio in data.loc[:, 'audio_name']:
 
+        # the silence before performing
         print(f"splitting {audio}.mp3")
         clap_end_time = data.loc[i, 'clap_end'] * 1000
         music_start_time = data.loc[i, 'music_start'] * 1000
-
-        # keep splitting the audio based on the duration given
         while (clap_end_time + duration < music_start_time):
 
             if (os.path.exists("data/yes/" + f"{j}.wav")):
@@ -193,6 +193,29 @@ if (__name__ == "__main__"):
             
             # move to the next start time
             clap_end_time += duration
+
+            # move to the data
+            os.rename(f"./{j}.wav", f"./data/no/{j}.wav")
+
+            # for data audio name
+            j += 1
+
+        # to increase more "no" class data
+        another_duration = 20 # seconds
+        end_clap_time = data.loc[i, 'end_clap_start'] * 1000
+        music_coming_to_an_end_time = end_clap_time - (20 * 1000)
+        while (music_coming_to_an_end_time + duration < end_clap_time):
+
+            if (os.path.exists("data/yes/" + f"{j}.wav")):
+                music_coming_to_an_end_time += duration
+                j += 1
+                continue
+
+            # split and export the resulting audio to current directory
+            split(music_coming_to_an_end_time, music_coming_to_an_end_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
+            
+            # move to the next start time
+            music_coming_to_an_end_time += duration
 
             # move to the data
             os.rename(f"./{j}.wav", f"./data/no/{j}.wav")
