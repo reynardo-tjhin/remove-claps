@@ -147,22 +147,22 @@ if (__name__ == "__main__"):
             j += 1
 
         # clapping after performance
-        end_clap_time = data.loc[i, 'end_clap_start'] * 1000
-        audio_end_time = data.loc[i, 'end_clap_end'] * 1000
-        while (end_clap_time + duration < audio_end_time):
+        end_clap_start_time = data.loc[i, 'end_clap_start'] * 1000
+        end_clap_end_time = data.loc[i, 'end_clap_end'] * 1000
+        while (end_clap_start_time + duration < end_clap_end_time):
 
             # print(f"{j}.wav is from {audio}.mp3")
 
             if (os.path.exists("data/yes/" + f"{j}.wav")):
-                end_clap_time += duration
+                end_clap_start_time += duration
                 j += 1
                 continue
 
             # split and export the resulting audio to current directory
-            split(end_clap_time, end_clap_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
+            split(end_clap_start_time, end_clap_start_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
             
             # move to the next start time
-            end_clap_time += duration
+            end_clap_start_time += duration
 
             # move to the data
             os.rename(f"./{j}.wav", f"./data/yes/{j}.wav")
