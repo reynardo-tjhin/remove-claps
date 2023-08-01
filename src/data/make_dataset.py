@@ -127,6 +127,8 @@ if (__name__ == "__main__"):
         clap_end_time = data.loc[i, 'clap_end'] * 1000
         while (clap_start_time + duration < clap_end_time):
 
+            # print(f"{j}.wav is from {audio}.mp3")
+
             if (os.path.exists("data/yes/" + f"{j}.wav")):
                 clap_start_time += duration
                 j += 1
@@ -146,8 +148,10 @@ if (__name__ == "__main__"):
 
         # clapping after performance
         end_clap_time = data.loc[i, 'end_clap_start'] * 1000
-        audio_end_time = data.loc[i, 'audio_end'] * 1000
+        audio_end_time = data.loc[i, 'end_clap_end'] * 1000
         while (end_clap_time + duration < audio_end_time):
+
+            # print(f"{j}.wav is from {audio}.mp3")
 
             if (os.path.exists("data/yes/" + f"{j}.wav")):
                 end_clap_time += duration
