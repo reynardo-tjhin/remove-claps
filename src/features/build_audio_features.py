@@ -4,17 +4,19 @@ import numpy as np
 import os
 
 # constants
-FRAME_LENGTH = 2048
+FRAME_LENGTH = 1024
 HOP_LENGTH = 512
 
 # create a DataFrame to store the audio features in a CSV file later
 df = pd.DataFrame({
     'audio_name': [],
-    'rms': [],
-    'zcr': [],
-    'spectral_centroid':  [],
-    'spectral_bandwidth': [],
-    'spectral_flatness': [],
+    'mean_rms': [],
+    'std_rms'
+    'mean_zcr': [],
+    'mean_spectral_centroid':  [],
+    'std_spectral_bandwidth': [],
+    'mean_spectral_flatness': [],
+    'mean_spectral_rolloff': [],
     'class': []
 })
 
@@ -28,27 +30,31 @@ for audio_name in os.listdir("../../data/yes"):
     audio, sr = librosa.load(audio_path)
 
     # calculate the features
-    audio_rms = librosa.feature.rms(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_zcr = librosa.feature.zero_crossing_rate(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_spectral_centroid = librosa.feature.spectral_centroid(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_spectral_bandwidth = librosa.feature.spectral_bandwidth(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_spectral_flatness = librosa.feature.spectral_flatness(y=audio, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    
+    audio_rms = librosa.feature.rms(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_zcr = librosa.feature.zero_crossing_rate(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_centroid = librosa.feature.spectral_centroid(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_bandwidth = librosa.feature.spectral_bandwidth(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_flatness = librosa.feature.spectral_flatness(y=audio, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_rolloff = librosa.feature.spectral_rolloff(y=audio, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+
     # perform aggregation for Machine Learning
-    audio_rms = np.mean(audio_rms)
-    audio_zcr = np.mean(audio_zcr)
-    audio_spectral_centroid = np.mean(audio_spectral_centroid)
-    audio_spectral_bandwidth = np.mean(audio_spectral_bandwidth)
-    audio_spectral_flatness = np.mean(audio_spectral_flatness)
+    audio_mean_rms = np.mean(audio_rms)
+    audio_std_rms = np.std(audio_rms)
+    audio_mean_zcr = np.mean(audio_zcr)
+    audio_mean_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_std_spectral_bandwidth = np.std(audio_spectral_bandwidth)
+    audio_mean_spectral_flatness = np.mean(audio_spectral_flatness)
+    audio_mean_spectral_rolloff = np.mean(audio_spectral_rolloff)
 
     # create a new array to be stored
     features = [
-        audio_name,
-        audio_rms,
-        audio_zcr,
-        audio_spectral_centroid,
-        audio_spectral_bandwidth,
-        audio_spectral_flatness,
+        audio_mean_rms,
+        audio_std_rms,
+        audio_mean_zcr,
+        audio_mean_spectral_centroid,
+        audio_std_spectral_bandwidth,
+        audio_mean_spectral_flatness,
+        audio_mean_spectral_rolloff,
         "yes"
     ]
 
@@ -67,32 +73,37 @@ for audio_name in os.listdir("../../data/no"):
     audio, sr = librosa.load(audio_path)
 
     # calculate the features
-    audio_rms = librosa.feature.rms(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_zcr = librosa.feature.zero_crossing_rate(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_spectral_centroid = librosa.feature.spectral_centroid(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_spectral_bandwidth = librosa.feature.spectral_bandwidth(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    audio_spectral_flatness = librosa.feature.spectral_flatness(y=audio, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    
+    audio_rms = librosa.feature.rms(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_zcr = librosa.feature.zero_crossing_rate(y=audio, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_centroid = librosa.feature.spectral_centroid(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_bandwidth = librosa.feature.spectral_bandwidth(y=audio, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_flatness = librosa.feature.spectral_flatness(y=audio, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+    audio_spectral_rolloff = librosa.feature.spectral_rolloff(y=audio, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
+
     # perform aggregation for Machine Learning
-    audio_rms = np.mean(audio_rms)
-    audio_zcr = np.mean(audio_zcr)
-    audio_spectral_centroid = np.mean(audio_spectral_centroid)
-    audio_spectral_bandwidth = np.mean(audio_spectral_bandwidth)
-    audio_spectral_flatness = np.mean(audio_spectral_flatness)
+    audio_mean_rms = np.mean(audio_rms)
+    audio_std_rms = np.std(audio_rms)
+    audio_mean_zcr = np.mean(audio_zcr)
+    audio_mean_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_std_spectral_bandwidth = np.std(audio_spectral_bandwidth)
+    audio_mean_spectral_flatness = np.mean(audio_spectral_flatness)
+    audio_mean_spectral_rolloff = np.mean(audio_spectral_rolloff)
 
     # create a new array to be stored
     features = [
-        audio_name,
-        audio_rms,
-        audio_zcr,
-        audio_spectral_centroid,
-        audio_spectral_bandwidth,
-        audio_spectral_flatness,
+        audio_mean_rms,
+        audio_std_rms,
+        audio_mean_zcr,
+        audio_mean_spectral_centroid,
+        audio_std_spectral_bandwidth,
+        audio_mean_spectral_flatness,
+        audio_mean_spectral_rolloff,
         "no"
     ]
 
     # add to the DataFrame
     df.loc[len(df)] = features
+
 
 
 
