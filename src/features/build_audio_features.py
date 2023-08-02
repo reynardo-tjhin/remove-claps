@@ -11,7 +11,7 @@ HOP_LENGTH = 512
 df = pd.DataFrame({
     'audio_name': [],
     'mean_rms': [],
-    'std_rms'
+    'std_rms': [],
     'mean_zcr': [],
     'mean_spectral_centroid':  [],
     'std_spectral_bandwidth': [],
@@ -48,6 +48,7 @@ for audio_name in os.listdir("../../data/yes"):
 
     # create a new array to be stored
     features = [
+        audio_name,
         audio_mean_rms,
         audio_std_rms,
         audio_mean_zcr,
@@ -91,6 +92,7 @@ for audio_name in os.listdir("../../data/no"):
 
     # create a new array to be stored
     features = [
+        audio_name,
         audio_mean_rms,
         audio_std_rms,
         audio_mean_zcr,
