@@ -10,6 +10,10 @@ train:
 	cd src/models; \
 	python3 train.py
 
+remove_claps:
+	cd src; \
+	python3 remove_claps.py
+
 clean-data-only:
 	rm -rf data;
 

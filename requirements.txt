@@ -1,6 +1,4 @@
 librosa
 numpy
 matplotlib
-
-
-https://www.youtube.com/watch?v=pHM52-QR-e0
+sklearn
