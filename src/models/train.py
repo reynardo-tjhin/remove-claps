@@ -15,6 +15,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score 
 import pandas as pd
 import numpy as np
+import pickle
 
 
 # get the data
@@ -123,6 +124,9 @@ for classifier in classifiers:
     ]
 
     metrics.loc[len(metrics)] = scores
+
+    with open(f"../../models/{name_of_classifier}.pickle", "wb") as file:
+        pickle.dump(model, file)
 
 # export result
 metrics.to_csv("train_result.csv", index=False)
