@@ -1,6 +1,6 @@
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import SVC
 from sklearn.tree import ExtraTreeClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -14,6 +14,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score 
 import pandas as pd
+import numpy as np
 
 
 # get the data
@@ -25,17 +26,17 @@ y = dataset.iloc[:, -1].values # dependent variables: the class
 le = LabelEncoder()
 y = le.fit_transform(y)
 
-# split the dataset into training set and test set
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-
 # perform feature scaling
 sc = StandardScaler()
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
+X = sc.fit_transform(X)
+
+# performing 10-Fold Stratified Cross Validation
+skf = StratifiedKFold(n_splits=10)
+
 
 # list of ML-based techniques classification
 classifiers = [
-    ['SVC', SVC(kernel="rbf")],
+    ['SVC', SVC(kernel="rbf", C=1)],
     ['ExtraTreesClassifier', ExtraTreeClassifier()],
     ['LinearDiscriminantAnalysis', LinearDiscriminantAnalysis()],
     ['DecisionTreeClassifier', DecisionTreeClassifier()],
@@ -61,6 +62,15 @@ metrics = pd.DataFrame({
     'Recall (Test)': [] 
 })
 
+accuracy_trains = np.zeros((1,10))
+accuracy_tests = np.zeros((1,10))
+f1_score_trains = np.zeros((1,10))
+f1_score_tests = np.zeros((1,10))
+precision_trains = np.zeros((1,10))
+precision_tests = np.zeros((1,10))
+recall_trains = np.zeros((1,10))
+recall_tests = np.zeros((1,10))
+
 # training
 for classifier in classifiers:
     
@@ -68,36 +78,48 @@ for classifier in classifiers:
     name_of_classifier = classifier[0]
     model = classifier[1]
 
-    # train the model
-    model.fit(X_train, y_train)
+    i = 0 # index
 
-    # get the classification
-    y_train_predicted = model.predict(X_train)
-    y_test_predicted = model.predict(X_test)
+    print(f"Training using {name_of_classifier} model...")
 
-    # scores
-    accuracy_train = accuracy_score(y_train, y_train_predicted)
-    accuracy_test = accuracy_score(y_test, y_test_predicted)
+    # cross-validation
+    for train_index, test_index in skf.split(X, y):
 
-    f1_score_train = f1_score(y_train, y_train_predicted)
-    f1_score_test = f1_score(y_test, y_test_predicted)
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
 
-    precision_train = precision_score(y_train, y_train_predicted)
-    precision_test = precision_score(y_test, y_test_predicted)
+        # train the model
+        model.fit(X_train, y_train)
 
-    recall_train = recall_score(y_train, y_train_predicted)
-    recall_test = recall_score(y_test, y_test_predicted)
+        # get the classification
+        y_train_predicted = model.predict(X_train)
+        y_test_predicted = model.predict(X_test)
+
+        # scores
+        accuracy_trains[0][i] = accuracy_score(y_train, y_train_predicted)
+        accuracy_tests[0][i] = accuracy_score(y_test, y_test_predicted)
+
+        f1_score_trains[0][i] = f1_score(y_train, y_train_predicted)
+        f1_score_tests[0][i] = f1_score(y_test, y_test_predicted)
+
+        precision_trains[0][i] = precision_score(y_train, y_train_predicted)
+        precision_tests[0][i] = precision_score(y_test, y_test_predicted)
+
+        recall_trains[0][i] = recall_score(y_train, y_train_predicted)
+        recall_tests[0][i] = recall_score(y_test, y_test_predicted)
+
+        i += 1
 
     scores = [
         name_of_classifier,
-        accuracy_train,
-        accuracy_test,
-        f1_score_train,
-        f1_score_test,
-        precision_train,
-        precision_test,
-        recall_train,
-        recall_test
+        accuracy_trains.mean(),
+        accuracy_tests.mean(),
+        f1_score_trains.mean(),
+        f1_score_tests.mean(),
+        precision_trains.mean(),
+        precision_tests.mean(),
+        recall_trains.mean(),
+        recall_tests.mean()
     ]
 
     metrics.loc[len(metrics)] = scores
