@@ -107,27 +107,47 @@ def load_model(model_file_path: str):
     with open(model_file_path, 'rb') as model_file:
         return pickle.load(model_file)
 
+def duration_of_audio(audio_file_path: str, format="mp3") -> int:
+    audio = AudioSegment.from_file(audio_file_path, format=format)
+    return len(audio)
+
 def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPClassifier.pickle"):
     
-    # remove claps in the opening
-    
     # split the audio
-    split_audio(0, 1.8, audio_file_path)
-
-    # build the features
-    features = np.reshape(build_audio_features("test.wav"), (1, 7))
-
-    sc = StandardScaler()
-    sc.fit_transform(features)
+    start_time = 0
+    end_time = duration_of_audio(audio_file_path) / 1000 # in seconds
 
     # get the model
     model = load_model(model_path)
 
-    print(model.predict(features))
+    # loop
+    while (start_time + duration < end_time):
+
+        # split audio
+        split_audio(start_time, start_time + duration, audio_file_path)
+
+        # build the features
+        features = np.reshape(build_audio_features("test.wav"), (1, 7))
+
+        # normalise the features
+        sc = StandardScaler()
+        features = sc.fit_transform(features)
+
+        # get prediction
+        prediction = model.predict(features)
+
+        # print the output
+        print("%.2f to %.2f -> %s" % (start_time, start_time+duration, str(prediction)))
+
+        # update start_time
+        start_time += duration
 
 
 if (__name__ == "__main__"):
     
-    remove_claps(audio_file_path="../sample.mp3")
+    audio_file_path = "../sample.mp3"
+    model_file_path = "../models/KNeighborsClassifier.pickle"
+
+    remove_claps(audio_file_path=audio_file_path, model_path=model_file_path)
 
 
