@@ -4,8 +4,8 @@ import numpy as np
 import os
 
 # constants
-FRAME_LENGTH = 1024
-HOP_LENGTH = 512
+FRAME_LENGTH = 512
+HOP_LENGTH = 128
 
 # create a DataFrame to store the audio features in a CSV file later
 df = pd.DataFrame({
@@ -13,10 +13,15 @@ df = pd.DataFrame({
     'mean_rms': [],
     'std_rms': [],
     'mean_zcr': [],
+    'std_zcr': [],
     'mean_spectral_centroid':  [],
+    'std_spectral_centroid':  [],
+    'mean_spectral_bandwidth': [],
     'std_spectral_bandwidth': [],
     'mean_spectral_flatness': [],
+    'std_spectral_flatness': [],
     'mean_spectral_rolloff': [],
+    'std_spectral_rolloff': [],
     'class': []
 })
 
@@ -41,10 +46,15 @@ for audio_name in os.listdir("../../data/yes"):
     audio_mean_rms = np.mean(audio_rms)
     audio_std_rms = np.std(audio_rms)
     audio_mean_zcr = np.mean(audio_zcr)
+    audio_std_zcr = np.mean(audio_zcr)
     audio_mean_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_std_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_mean_spectral_bandwidth = np.std(audio_spectral_bandwidth)
     audio_std_spectral_bandwidth = np.std(audio_spectral_bandwidth)
     audio_mean_spectral_flatness = np.mean(audio_spectral_flatness)
+    audio_std_spectral_flatness = np.mean(audio_spectral_flatness)
     audio_mean_spectral_rolloff = np.mean(audio_spectral_rolloff)
+    audio_std_spectral_rolloff = np.mean(audio_spectral_rolloff)
 
     # create a new array to be stored
     features = [
@@ -52,10 +62,15 @@ for audio_name in os.listdir("../../data/yes"):
         audio_mean_rms,
         audio_std_rms,
         audio_mean_zcr,
+        audio_std_zcr,
         audio_mean_spectral_centroid,
+        audio_std_spectral_centroid,
+        audio_mean_spectral_bandwidth,
         audio_std_spectral_bandwidth,
         audio_mean_spectral_flatness,
+        audio_std_spectral_flatness,
         audio_mean_spectral_rolloff,
+        audio_std_spectral_rolloff,
         "yes"
     ]
 
@@ -85,10 +100,15 @@ for audio_name in os.listdir("../../data/no"):
     audio_mean_rms = np.mean(audio_rms)
     audio_std_rms = np.std(audio_rms)
     audio_mean_zcr = np.mean(audio_zcr)
+    audio_std_zcr = np.mean(audio_zcr)
     audio_mean_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_std_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_mean_spectral_bandwidth = np.std(audio_spectral_bandwidth)
     audio_std_spectral_bandwidth = np.std(audio_spectral_bandwidth)
     audio_mean_spectral_flatness = np.mean(audio_spectral_flatness)
+    audio_std_spectral_flatness = np.mean(audio_spectral_flatness)
     audio_mean_spectral_rolloff = np.mean(audio_spectral_rolloff)
+    audio_std_spectral_rolloff = np.mean(audio_spectral_rolloff)
 
     # create a new array to be stored
     features = [
@@ -96,10 +116,15 @@ for audio_name in os.listdir("../../data/no"):
         audio_mean_rms,
         audio_std_rms,
         audio_mean_zcr,
+        audio_std_zcr,
         audio_mean_spectral_centroid,
+        audio_std_spectral_centroid,
+        audio_mean_spectral_bandwidth,
         audio_std_spectral_bandwidth,
         audio_mean_spectral_flatness,
+        audio_std_spectral_flatness,
         audio_mean_spectral_rolloff,
+        audio_std_spectral_rolloff,
         "no"
     ]
 

@@ -2,6 +2,7 @@ import pickle
 import os
 import librosa
 import numpy as np
+import pandas as pd
 from pytube import YouTube
 from moviepy.editor import AudioFileClip
 from pydub import AudioSegment
@@ -48,8 +49,8 @@ def build_audio_features(audio_file_path: str) -> np.ndarray:
     """
 
     # constants
-    FRAME_LENGTH = 1024
-    HOP_LENGTH = 512
+    FRAME_LENGTH = 512
+    HOP_LENGTH = 128
 
     # audio is in .wav file format
     # load the audio
@@ -67,26 +68,58 @@ def build_audio_features(audio_file_path: str) -> np.ndarray:
     audio_mean_rms = np.mean(audio_rms)
     audio_std_rms = np.std(audio_rms)
     audio_mean_zcr = np.mean(audio_zcr)
+    audio_std_zcr = np.mean(audio_zcr)
     audio_mean_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_std_spectral_centroid = np.mean(audio_spectral_centroid)
+    audio_mean_spectral_bandwidth = np.std(audio_spectral_bandwidth)
     audio_std_spectral_bandwidth = np.std(audio_spectral_bandwidth)
     audio_mean_spectral_flatness = np.mean(audio_spectral_flatness)
+    audio_std_spectral_flatness = np.mean(audio_spectral_flatness)
     audio_mean_spectral_rolloff = np.mean(audio_spectral_rolloff)
+    audio_std_spectral_rolloff = np.mean(audio_spectral_rolloff)
 
     # create an np array features
-    features = np.array([
+    features = np.array([[
         audio_mean_rms,
         audio_std_rms,
         audio_mean_zcr,
+        audio_std_zcr,
         audio_mean_spectral_centroid,
+        audio_std_spectral_centroid,
+        audio_mean_spectral_bandwidth,
         audio_std_spectral_bandwidth,
         audio_mean_spectral_flatness,
+        audio_std_spectral_flatness,
         audio_mean_spectral_rolloff,
-    ])
+        audio_std_spectral_rolloff
+    ]])
 
     return features
 
 def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPClassifier.pickle"):
-        
+    """
+    models:
+    1. SVC
+    2. ExtraTreesClassifier
+    3. LinearDiscriminantAnalysis
+    4. DecisionTreeClassifier
+    5. KNeighborsClassifier
+    6. RandomForestClassifier
+    7. MLPClassifier
+    8. AdaBoostClassifier
+    9. NuSVC
+    10. GaussianNB
+    11. QuadraticDiscriminantAnalysis
+    """
+
+    # get the data
+    dataset = pd.read_csv("../data/data.csv")
+    X = dataset.iloc[:, 1:-1].values # independent variables: the features
+
+    # perform feature scaling
+    sc = StandardScaler()
+    X = sc.fit_transform(X)
+    
     # get the audio
     audio = AudioSegment.from_file(audio_file_path, format="mp3")
     start_time = 0
@@ -96,6 +129,8 @@ def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPCl
     with open(model_path, 'rb') as model_file:
         model = pickle.load(model_file)
 
+    i = 0
+
     # loop
     while (start_time + duration < end_time):
 
@@ -104,11 +139,10 @@ def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPCl
         sound.export("test.wav", format="wav")
 
         # build the features
-        features = np.reshape(build_audio_features("test.wav"), (1, 7))
+        features = build_audio_features("test.wav")
 
         # normalise the features
-        sc = StandardScaler()
-        features = sc.fit_transform(features)
+        features = sc.transform(features)
 
         # get prediction
         prediction = model.predict(features)
@@ -127,7 +161,7 @@ def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPCl
 if (__name__ == "__main__"):
     
     audio_file_path = "../sample.mp3"
-    model_file_path = "../models/KNeighborsClassifier.pickle"
+    model_file_path = "../models/MLPClassifier.pickle"
 
     remove_claps(audio_file_path=audio_file_path, model_path=model_file_path)
 

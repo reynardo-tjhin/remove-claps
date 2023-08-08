@@ -31,6 +31,9 @@ y = le.fit_transform(y)
 sc = StandardScaler()
 X = sc.fit_transform(X)
 
+print(X)
+print(y)
+
 # performing 10-Fold Stratified Cross Validation
 skf = StratifiedKFold(n_splits=10)
 
