@@ -85,46 +85,23 @@ def build_audio_features(audio_file_path: str) -> np.ndarray:
 
     return features
 
-def split_audio(start: int, end: int, audio_file_path: str) -> None:
-    """
-    Split the audio from start to end.
-
-    :param start: the starting time of the audio
-    :param end: the ending time of the audio
-    :param audio_file_path: the path of the audio to be cut
-    """
-    audio = AudioSegment.from_file(audio_file_path, format="mp3")
-    sound = audio[start*1000:end*1000]
-    sound.export("test.wav", format="wav")
-
-    return None
-
-def load_model(model_file_path: str):
-    """
-    :param model_file_path: a pickle file path
-    :return a model that was saved
-    """
-    with open(model_file_path, 'rb') as model_file:
-        return pickle.load(model_file)
-
-def duration_of_audio(audio_file_path: str, format="mp3") -> int:
-    audio = AudioSegment.from_file(audio_file_path, format=format)
-    return len(audio)
-
 def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPClassifier.pickle"):
-    
-    # split the audio
+        
+    # get the audio
+    audio = AudioSegment.from_file(audio_file_path, format="mp3")
     start_time = 0
-    end_time = duration_of_audio(audio_file_path) / 1000 # in seconds
+    end_time = len(audio) / 1000 # in seconds
 
     # get the model
-    model = load_model(model_path)
+    with open(model_path, 'rb') as model_file:
+        model = pickle.load(model_file)
 
     # loop
     while (start_time + duration < end_time):
 
         # split audio
-        split_audio(start_time, start_time + duration, audio_file_path)
+        sound = audio[start_time*1000:(start_time + duration)*1000]
+        sound.export("test.wav", format="wav")
 
         # build the features
         features = np.reshape(build_audio_features("test.wav"), (1, 7))
@@ -141,6 +118,10 @@ def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPCl
 
         # update start_time
         start_time += duration
+
+    # remove the temporary file
+    os.remove("./test.wav")
+
 
 
 if (__name__ == "__main__"):

@@ -1,56 +1,25 @@
 # Import Libraries
 import os
+import glob
 import pandas as pd
 from pytube import YouTube
 from moviepy.editor import *
 from pydub import AudioSegment
 
-
-def convertMP4toMP3(video_name="sample"):
+def convertMP4toWAV(video_name="sample"):
     """
-    A simple function that converts an mp4 video to mp3.
+    A simple function that converts an mp4 video to wav.
 
     Requires: MoviePy module.
     """
     video_name = video_name.replace(".mp4", "")
 
     VIDEO_FILE_PATH = "./audio/mp4/" + video_name + ".mp4"
-    AUDIO_FILE_PATH = "./audio/mp3/" + video_name + ".mp3"
+    AUDIO_FILE_PATH = "./audio/wav/" + video_name + ".wav"
 
     FILETOCONVERT = AudioFileClip(VIDEO_FILE_PATH)
     FILETOCONVERT.write_audiofile(AUDIO_FILE_PATH)
     FILETOCONVERT.close()
-
-
-def split(start: int, end: int, audio_name="/path/to/sample", audio_result_name="sample"):
-    """
-    Split and create a wav from the give start and end time of the audio segment.
-
-    :param start: the starting time (in milliseconds)
-    :param end: the ending time (in milliseconds)
-    :param audio_name: the path to the audio
-    :param audio_result: the name of the audio exported
-
-    Requires: Pydub module.
-    Dependencies: ffmpeg (using sudo apt install) and ffprobe (using pip3 install).
-    """
-    if (end < start):
-        print("Error: End duration is earlier than start duration")
-        return
-
-    # write the audio file path
-    AUDIO_FILE_PATH = "." + audio_name + ".mp3"
-
-    # create a sound object using pydub module
-    sound = AudioSegment.from_file(AUDIO_FILE_PATH, format="mp3")
-
-    # grab the first five seconds of the audio
-    first_seconds = sound[start:end]
-
-    # simple export to 2 different file formats: wav and mp3
-    # first_five_seconds.export("test.mp3", format="mp3")
-    first_seconds.export(f"{audio_result_name}.wav", format="wav")
-
 
 if (__name__ == "__main__"):
 
@@ -66,7 +35,7 @@ if (__name__ == "__main__"):
     if (not os.path.exists("./audio")):
         os.makedirs("audio")
         os.makedirs("audio/mp4")
-        os.makedirs("audio/mp3")
+        os.makedirs("audio/wav")
     
     # download the audios based on the youtube linke
     i = 0
@@ -95,9 +64,9 @@ if (__name__ == "__main__"):
     # convert the audios to MP3 format
     for name in os.listdir("audio/mp4"):
         name = name.replace(".mp4", "")
-        if (not os.path.exists("audio/mp3/" + name + ".mp3")):
-            # converting mp4 to mp3
-            convertMP4toMP3(video_name=name)
+        if (not os.path.exists("audio/wav/" + name + ".wav")):
+            # converting mp4 to wav
+            convertMP4toWAV(video_name=name)
         else:
             print(f"{name} found... Skipping...")
 
@@ -110,141 +79,69 @@ if (__name__ == "__main__"):
         os.makedirs("data/no")
 
     # create the classes of yes and no
-    data = pd.read_csv("dataset.csv")
+    data = pd.read_csv("new_dataset.csv")
 
     # duration based on exploration.ipynb
-    duration = 1800 # in milliseconds
+    duration = 1.8 # in seconds
 
-    # making a "yes" class
     i = 0
-    j = 0
-    for audio in data.loc[:, 'audio_name']:
 
-        print(f"splitting {audio}.mp3")
+    print("Making 'yes' class data")
+    # make 'yes' class data
+    for row in range(data.shape[0]):
 
-        # clapping before performance
-        clap_start_time = data.loc[i, 'clap_start'] * 1000
-        clap_end_time = data.loc[i, 'clap_end'] * 1000
-        while (clap_start_time + duration < clap_end_time):
+        audio_file_name = data.iloc[row, 0]
+        start_time = data.iloc[row, 1]
+        end_time = data.iloc[row, 2]
 
-            # print(f"{j}.wav is from {audio}.mp3")
+        print(f"Splitting Audio File Name: {audio_file_name}")
 
-            if (os.path.exists("data/yes/" + f"{j}.wav")):
-                clap_start_time += duration
-                j += 1
-                continue
+        audio = AudioSegment.from_file(f"./audio/wav/{audio_file_name}.wav", format="wav")
+        is_not_finished = True
+        while (is_not_finished):
 
-            # split and export the resulting audio to current directory
-            split(clap_start_time, clap_start_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
-            
-            # move to the next start time
-            clap_start_time += duration
+            if (start_time + duration > end_time):
+                start_time = end_time - duration
+                is_not_finished = False
 
-            # move to the data
-            os.rename(f"./{j}.wav", f"./data/yes/{j}.wav")
+            cut_audio = audio[start_time * 1000:(start_time + duration) * 1000]
+            cut_audio.export(f"{i}.wav", format="wav")
 
-            # for data audio name
-            j += 1
+            start_time += duration        
+            i += 1
 
-        # clapping after performance
-        end_clap_start_time = data.loc[i, 'end_clap_start'] * 1000
-        end_clap_end_time = data.loc[i, 'end_clap_end'] * 1000
-        while (end_clap_start_time + duration < end_clap_end_time):
+    for file in glob.glob("*.wav"):
+        os.rename(file, "./data/yes/" + file)
 
-            # print(f"{j}.wav is from {audio}.mp3")
+    print("Making 'no' class data")
+    # make 'no' class data
+    NUMBER_OF_WAV_FILES = len([name for name in os.listdir("./audio/wav") if os.path.isfile("./audio/wav/" + name)])
+    for audio_id in range(NUMBER_OF_WAV_FILES):
 
-            if (os.path.exists("data/yes/" + f"{j}.wav")):
-                end_clap_start_time += duration
-                j += 1
-                continue
+        print(f"Splitting Audio File Name: audio{audio_id}")
 
-            # split and export the resulting audio to current directory
-            split(end_clap_start_time, end_clap_start_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
-            
-            # move to the next start time
-            end_clap_start_time += duration
+        cut_data = data.loc[data['audio_name'] == f'audio{audio_id}']
+        to_train = cut_data.iloc[:, 4].values[0]
+        if (to_train == 0): continue
 
-            # move to the data
-            os.rename(f"./{j}.wav", f"./data/yes/{j}.wav")
+        audio = AudioSegment.from_file(f"./audio/wav/audio{audio_id}.wav", format="wav")
+        for row in range(cut_data.shape[0] - 1):
 
-            # for data audio name
-            j += 1
+            start_time = cut_data.iloc[row, 2]
+            end_time = cut_data.iloc[row + 1, 1]
+            is_not_finished = True
+            while (is_not_finished):
 
-        # loop through each audio
-        i += 1
+                if (start_time + duration > end_time):
+                    start_time = end_time - duration
+                    is_not_finished = False
 
+                cut_audio = audio[start_time * 1000:(start_time + duration) * 1000]
+                cut_audio.export(f"{i}.wav", format="wav")
 
-    print()
+                start_time += duration        
+                i += 1
 
-
-    # making a "no" class
-    i = 0
-    for audio in data.loc[:, 'audio_name']:
-
-        # the silence before performing
-        print(f"splitting {audio}.mp3")
-
-        clap_end_time = data.loc[i, 'clap_end'] * 1000
-        end_clap_start = data.loc[i, 'end_clap_start'] * 1000
-
-        while (clap_end_time + duration < end_clap_start):
-
-            # split and export the resulting audio to current directory
-            split(clap_end_time, clap_end_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
-        
-            # move to the next start time
-            clap_end_time += duration
-            
-            # move to the data
-            os.rename(f"./{j}.wav", f"./data/no/{j}.wav")
-
-            # for data audio name
-            j += 1
-
-
-        # clap_end_time = data.loc[i, 'clap_end'] * 1000
-        # music_start_time = data.loc[i, 'music_start'] * 1000
-        # while (clap_end_time + duration < music_start_time):
-
-        #     if (os.path.exists("data/yes/" + f"{j}.wav")):
-        #         clap_end_time += duration
-        #         j += 1
-        #         continue
-
-        #     # split and export the resulting audio to current directory
-        #     split(clap_end_time, clap_end_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
-        
-        #     # move to the next start time
-        #     clap_end_time += duration
-
-        #     # move to the data
-        #     os.rename(f"./{j}.wav", f"./data/no/{j}.wav")
-
-        #     # for data audio name
-        #     j += 1
-
-        # # to increase more "no" class data
-        # another_duration = 20 # seconds
-        # end_clap_time = data.loc[i, 'end_clap_start'] * 1000
-        # music_coming_to_an_end_time = end_clap_time - (20 * 1000)
-        # while (music_coming_to_an_end_time + duration < end_clap_time):
-
-        #     if (os.path.exists("data/yes/" + f"{j}.wav")):
-        #         music_coming_to_an_end_time += duration
-        #         j += 1
-        #         continue
-
-        #     # split and export the resulting audio to current directory
-        #     split(music_coming_to_an_end_time, music_coming_to_an_end_time+duration, audio_name=f"/audio/mp3/{audio}", audio_result_name=str(j))
-            
-        #     # move to the next start time
-        #     music_coming_to_an_end_time += duration
-
-        #     # move to the data
-        #     os.rename(f"./{j}.wav", f"./data/no/{j}.wav")
-
-        #     # for data audio name
-        #     j += 1
-
-        # loop through each audio
-        i += 1
+    # move files
+    for file in glob.glob("*.wav"):
+        os.rename(file, "./data/no/" + file)

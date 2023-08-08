@@ -125,55 +125,9 @@ for classifier in classifiers:
 
     metrics.loc[len(metrics)] = scores
 
-
-
-
-    ###################
-    ##### TESTING #####
-    ###################
-
-    from remove_claps import split_audio
-    from remove_claps import build_audio_features
-    from remove_claps import duration_of_audio
-
-    # split the audio
-    start_time = 0
-    end_time = duration_of_audio("../../sample.mp3") / 1000 # in seconds
-
-    # loop
-    while (start_time + 1.8 < end_time):
-
-        # split audio
-        split_audio(start_time, start_time + 1.8, "../../sample.mp3")
-
-        # build the features
-        features = np.reshape(build_audio_features("test.wav"), (1, 7))
-
-        # normalise the features
-        sc = StandardScaler()
-        features = sc.fit_transform(features)
-
-        # get prediction
-        prediction = model.predict(features)
-
-        # print the output
-        print("%.2f to %.2f -> %s" % (start_time, start_time+1.8, str(prediction)))
-
-        # update start_time
-        start_time += 1.8
-
-    ###################
-    ##### TESTING #####
-    ###################
-
-
     with open(f"../../models/{name_of_classifier}.pickle", "wb") as file:
         pickle.dump(model, file)
 
 # export result
 metrics.to_csv("train_result.csv", index=False)
     
-
-# tuning hyperparameters? Are there automatic ways?
-
-# what evaluation metrics should we focus on?

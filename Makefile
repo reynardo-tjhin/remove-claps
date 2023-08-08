@@ -1,6 +1,7 @@
 data:
 	cd src/data; \
-	python3 make_dataset.py
+	python3 make_dataset.py; \
+	python3 randomise_remove.py
 
 features:
 	cd src/features; \

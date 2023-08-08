@@ -2,6 +2,7 @@
 /tutorials
 /data
 /__pycache__
+/deprecated
 
 test.wav
 /notebooks/test.wav

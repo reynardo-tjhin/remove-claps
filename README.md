@@ -18,3 +18,7 @@ Problem Statement: TODO
 Dataset:
 
 
+CHANGE IDEA:
+1. Find a way to speed up the splitting time
+2. Improve dataset => In a performance (yes: claps vs no: others)
+3. (Optional) Find other features that may help
