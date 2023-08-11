@@ -66,14 +66,14 @@ metrics = pd.DataFrame({
     'Recall (Test)': [] 
 })
 
-accuracy_trains = np.zeros((1,10))
-accuracy_tests = np.zeros((1,10))
-f1_score_trains = np.zeros((1,10))
-f1_score_tests = np.zeros((1,10))
-precision_trains = np.zeros((1,10))
-precision_tests = np.zeros((1,10))
-recall_trains = np.zeros((1,10))
-recall_tests = np.zeros((1,10))
+accuracy_trains = np.zeros((1,11))
+accuracy_tests = np.zeros((1,11))
+f1_score_trains = np.zeros((1,11))
+f1_score_tests = np.zeros((1,11))
+precision_trains = np.zeros((1,11))
+precision_tests = np.zeros((1,11))
+recall_trains = np.zeros((1,11))
+recall_tests = np.zeros((1,11))
 
 # training
 for classifier in classifiers:

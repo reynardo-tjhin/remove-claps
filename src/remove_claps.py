@@ -3,6 +3,7 @@ import os
 import librosa
 import numpy as np
 import pandas as pd
+import math
 from pytube import YouTube
 from moviepy.editor import AudioFileClip
 from pydub import AudioSegment
@@ -96,9 +97,9 @@ def build_audio_features(audio_file_path: str) -> np.ndarray:
 
     return features
 
-def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPClassifier.pickle"):
+def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../models/MLPClassifier.pickle"):
     """
-    models:
+    11 models that can be used:
     1. SVC
     2. ExtraTreesClassifier
     3. LinearDiscriminantAnalysis
@@ -110,6 +111,13 @@ def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPCl
     9. NuSVC
     10. GaussianNB
     11. QuadraticDiscriminantAnalysis
+
+    :param audio_file_path: the path to the mp3 audio
+    :param step: to clean the claps in order not to be in multiples of duration (in seconds)
+    :param duration: duration of the clap based on training (in seconds)
+    :param model_path: the path to the model stored in models directory
+
+    :result a list of clapping start time and clapping end times (in tuples)
     """
 
     # get the data
@@ -129,32 +137,105 @@ def remove_claps(audio_file_path: str, duration=1.8, model_path="../models/MLPCl
     with open(model_path, 'rb') as model_file:
         model = pickle.load(model_file)
 
-    i = 0
+    clapping_starts = []
+    clapping_ends = []
+    is_clapping = False
 
-    # loop
-    while (start_time + duration < end_time):
+    # main loop
+    is_not_finished = True
+    while (is_not_finished):
+
+        if (start_time + duration > end_time):
+            start_time = end_time - duration
+            is_not_finished = False
 
         # split audio
         sound = audio[start_time*1000:(start_time + duration)*1000]
         sound.export("test.wav", format="wav")
-
-        # build the features
         features = build_audio_features("test.wav")
-
-        # normalise the features
         features = sc.transform(features)
 
         # get prediction
         prediction = model.predict(features)
+        if (prediction == 1):
+
+            # the first of block of clapping sound
+            if (is_clapping == False):
+
+                # do some cleaning at the start of the sound
+                # to ensure that the end of music does not cut abruptly
+                if (not math.isclose(start_time, 0.0)):
+
+                    new_start = start_time - step
+                    while (prediction != 0):
+
+                        sound = audio[new_start*1000:(new_start + duration)*1000]
+                        sound.export("test.wav", format="wav")
+                        features = build_audio_features("test.wav")
+                        features = sc.transform(features)
+                        prediction = model.predict(features)
+                        new_start -= step
+                    
+                    clapping_starts.append(new_start)
+                
+                else:
+                    clapping_starts.append(start_time)
+            
+            # clapping sound extends until the end of the audio
+            if (math.isclose(start_time + duration, end_time)):
+                clapping_ends.append(end_time)
+            
+            is_clapping = True
+
+        else:
+            # the first non-clapping sound is obtained
+            # the first block of sound RIGHT after clapping ends
+            if (is_clapping):
+
+                # do some cleaning - trimming until the prediction is 1
+                new_start = start_time - step
+                while (prediction != 1):
+
+                    sound = audio[new_start*1000:(new_start + duration)*1000]
+                    sound.export("test.wav", format="wav")
+                    features = build_audio_features("test.wav")
+                    features = sc.transform(features)
+                    prediction = model.predict(features)
+                    new_start -= step
+
+                clapping_ends.append(new_start)
+            
+            is_clapping = False
 
         # print the output
-        print("%.2f to %.2f -> %s" % (start_time, start_time+duration, str(prediction)))
+        # print("%.2f to %.2f -> %s" % (start_time, start_time+duration, str(prediction)))
 
         # update start_time
         start_time += duration
 
     # remove the temporary file
     os.remove("./test.wav")
+
+    return tuple(zip(clapping_starts, clapping_ends))
+
+def export_result(clapping_list: list, audio_file_path: str) -> None:
+    
+    i = 0
+    while (i < len(clapping_list) - 1):
+        
+        # get the start of music and end of music times
+        start_of_music = clapping_list[i][1]
+        end_of_music = clapping_list[i + 1][0]
+
+        # trim
+        audio = AudioSegment.from_file(audio_file_path, format="mp3")
+        trimmed_audio = audio[int(start_of_music * 1000):int(end_of_music * 1000)]
+        trimmed_audio.export(f"result{i}.mp3", format="mp3")
+
+        # move to the main directory
+        os.rename(f"./result{i}.mp3", f"../result{i}.mp3")
+        
+        i += 1
 
 
 
@@ -163,6 +244,11 @@ if (__name__ == "__main__"):
     audio_file_path = "../sample.mp3"
     model_file_path = "../models/MLPClassifier.pickle"
 
-    remove_claps(audio_file_path=audio_file_path, model_path=model_file_path)
+    print("Finding the clapping time(s)...")
+    result = remove_claps(audio_file_path=audio_file_path, model_path=model_file_path)
+    print("Done!")
 
+    print("Trimming Starts...")
+    export_result(clapping_list=result, audio_file_path=audio_file_path)
+    print("Done!")
 
