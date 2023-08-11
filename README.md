@@ -15,7 +15,9 @@ The challenge at hand is to create a specialized tool that enhances the offline 
 The dataset is sourced by downloading video audio from YouTube (from 'music_links.csv') and subsequently converting it to the WAV format. The 'yes' and 'no' classes are determined by detecting instances of audience clapping, then recorded in 'new_dataset.csv'. Following this, the features are extracted and stored within the 'data-features' folder.
 
 ## How to try:
-1. There is a sample audio named "sample.mp3". Have a listen to the audio and you will notice that there are two parts where the audiences clap, at the start and at the end.
-2. The models are already trained. Hence, the only step you need to do is "make remove_claps". This will run the "remove_claps.py" in the src folder. It will output an audio name "result0.mp3"
-3. The result is not as clean but it achieves what I have in mind.
+1. There is a sample audio named "sample.mp3". Take a moment to listen to the sample audio. You'll observe audience clapping at both the beginning and the conclusion of the audio.
+2. The models are pre-trained, simplifying the process to a single step: execute 'make remove_claps'. This command runs 'remove_claps.py' from the 'src' folder, generating an audio file named 'result0.mp3' as the output.
+3. The output may not be perfect in terms of cleanliness, but it successfully aligns with the intended goal.
+
+**Note**: You have the option to experiment further by downloading MP3 audios from various sources, and if you wish to customize the file path, navigate to line 244 within the 'remove_claps.py' file located in the 'src' folder.
 
