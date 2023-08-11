@@ -2,3 +2,7 @@ librosa
 numpy
 matplotlib
 sklearn
+pandas
+pytube
+moviepy
+pydub

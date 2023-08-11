@@ -8,15 +8,15 @@ I learned Audio Analysis from a Youtube Series:
 Thanks to ![Valerio Velardo](https://www.youtube.com/@ValerioVelardoTheSoundofAI)
 
 Description: <br>
-Using basic Machine Learning techniques to remove hand claps from a music performance audio
+The challenge at hand is to create a specialized tool that enhances the offline listening experience of classical music performances, particularly when sourced as MP3 files. Classical music recordings often include audience clapping. These section detracts from the immersive and focused listening experience that many classical music enthusiasts seek. To address this issue, this project aims to develop a solution that allows users to seamlessly eliminate or skip these audience clappings, ensuring that the essence of the performance is preserved while enhancing user enjoyment. This project involves downloading datasets, extracting audio features, training algorithms, and ultimately creating a tool capable of enhancing MP3 audio by removing audience clapping, resulting in a more refined listening experience.
 
-Problem Statement: <br>
-This solution comes from when I want to listen to classical music performances offline (after downloading them, typically as mp3). However, in most of the classical music performances, there are three sections in the video: the first section is when the audiences are clapping for when the musician comes to perform which is then followed by a quiet time when the musicians are preparing, the second section is when the music is playing and finally the last section is when the music ends and the audience cheers for the musicians for their amazing performances.
+*Note: The availability of YouTube video links is uncertain. Therefore, the 'data-features' folder is designed to retain the essential features of downloaded MP3 audio, ensuring data preservation.
 
-Dataset:
+Dataset: <br>
+The dataset is sourced by downloading video audio from YouTube (from 'music_links.csv') and subsequently converting it to the WAV format. The 'yes' and 'no' classes are determined by detecting instances of audience clapping, then recorded in 'new_dataset.csv'. Following this, the features are extracted and stored within the 'data-features' folder.
 
+How to try: <br>
+1. There is a sample audio named "sample.mp3". Have a listen to the audio and you will notice that there are two parts where the audiences clap, at the start and at the end.
+2. The models are already trained. Hence, the only step you need to do is "make remove_claps". This will run the "remove_claps.py" in the src folder. It will output an audio name "result0.mp3"
+3. The result is not as clean but it achieves what I have in mind.
 
-CHANGE IDEA:
-1. Find a way to speed up the splitting time
-2. Improve dataset => In a performance (yes: claps vs no: others)
-3. (Optional) Find other features that may help
