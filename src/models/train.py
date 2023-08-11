@@ -11,7 +11,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.svm import NuSVC
 from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score 
 import pandas as pd
 import numpy as np
@@ -19,7 +18,7 @@ import pickle
 
 
 # get the data
-dataset = pd.read_csv("../../data/data.csv")
+dataset = pd.read_csv("../../data-features/data.csv")
 X = dataset.iloc[:, 1:-1].values # independent variables: the features
 y = dataset.iloc[:, -1].values # dependent variables: the class
 
@@ -30,9 +29,6 @@ y = le.fit_transform(y)
 # perform feature scaling
 sc = StandardScaler()
 X = sc.fit_transform(X)
-
-print(X)
-print(y)
 
 # performing 10-Fold Stratified Cross Validation
 skf = StratifiedKFold(n_splits=10)
@@ -49,8 +45,7 @@ classifiers = [
     ['MLPClassifier', MLPClassifier(max_iter=500)],
     ['AdaBoostClassifier', AdaBoostClassifier()],
     ['NuSVC', NuSVC()],
-    ['GaussianNB', GaussianNB()],
-    ['QuadraticDiscriminantAnalysis', QuadraticDiscriminantAnalysis()]
+    ['GaussianNB', GaussianNB()]
 ]
 
 # store metrics in .csv file
@@ -66,14 +61,14 @@ metrics = pd.DataFrame({
     'Recall (Test)': [] 
 })
 
-accuracy_trains = np.zeros((1,11))
-accuracy_tests = np.zeros((1,11))
-f1_score_trains = np.zeros((1,11))
-f1_score_tests = np.zeros((1,11))
-precision_trains = np.zeros((1,11))
-precision_tests = np.zeros((1,11))
-recall_trains = np.zeros((1,11))
-recall_tests = np.zeros((1,11))
+accuracy_trains = np.zeros((1,len(classifiers)))
+accuracy_tests = np.zeros((1,len(classifiers)))
+f1_score_trains = np.zeros((1,len(classifiers)))
+f1_score_tests = np.zeros((1,len(classifiers)))
+precision_trains = np.zeros((1,len(classifiers)))
+precision_tests = np.zeros((1,len(classifiers)))
+recall_trains = np.zeros((1,len(classifiers)))
+recall_tests = np.zeros((1,len(classifiers)))
 
 # training
 for classifier in classifiers:

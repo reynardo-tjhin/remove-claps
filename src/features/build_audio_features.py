@@ -136,5 +136,9 @@ for audio_name in os.listdir("../../data/no"):
 
 print("Exporting to csv")
 
+# check if the directory "data-features" exists
+if (not os.path.exists("../../data-features")):
+    os.makedirs("../../data-features")
+
 # export to csv
-df.to_csv("../../data/data.csv", index=False)
+df.to_csv("../../data-features/data.csv", index=False)

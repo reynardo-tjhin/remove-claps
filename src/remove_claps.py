@@ -121,7 +121,7 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
     """
 
     # get the data
-    dataset = pd.read_csv("../data/data.csv")
+    dataset = pd.read_csv("../data-features/data.csv")
     X = dataset.iloc[:, 1:-1].values # independent variables: the features
 
     # perform feature scaling
