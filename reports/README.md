@@ -44,6 +44,12 @@ Once we've obtained the tabulated audio features, we employ Machine Learning tec
 
 Remarkably, the models achieve excellent results (over 94%) with minimal hyperparameter adjustments, possibly due to the distinct separation between 'yes' and 'no' class instances. This raises the question whether machine learning models are truly necessary for this audio classification. Additionally, some classifiers exhibit signs of overfitting, with training metrics such as accuracy, F1 score, precision, and recall reaching 100%. Considering accuracy on the testing set as the primary metric, the multi-layer perceptron classifier appears to be the most suitable choice.
 
+## Conclusion
+
+After conducting tests on various sample MP3s (outside the training and testing datasets), the classifier successfully predicts the correct audio segment corresponding to the music's conclusion. This indicates the classifier's ability to recognize music endings. However, it encounters difficulties in predicting the end of clapping sounds. This limitation could be attributed to the dataset's focus on the central aspects of audience clapping, resulting in the classifier's inability to capture the entirety of human clapping and consequently, failing to classify the end of the applause.
+
+During the third test, focused on the violin concerto, the classifier effectively removes all audience claps, but it exhibits an issue by incorrectly removing certain sections of the music. Notably, these instances are confined to short segments (1.8 seconds). One potential approach to mitigate this is by applying logical intuition. For instance, in live performances, audience claps typically extend beyond 1.8 seconds, often surpassing 10 seconds based on empirical observations. However, if performers are about to resume, claps might persist for approximately 5 seconds. Consequently, in the event of misclassification of a small segment, a manual review could facilitate the removal of these false predictions.
+
 ## Next Work
 
 The current project tackles the issue through iterative audio segment classification. Future efforts may concentrate on refining this existing approach to enhance problem-solving methods.

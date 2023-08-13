@@ -64,7 +64,9 @@ def build_audio_features(audio_file_path: str) -> np.ndarray:
 
     return features
 
-def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../models/MLPClassifier.pickle") -> list:
+def remove_claps(audio_file_path: str, step=0.05,
+                 duration=1.8, logical_duration=3.0,
+                 model_path="../models/MLPClassifier.pickle") -> list:
     """
     10 models that can be used:
     1. SVC
@@ -191,10 +193,22 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
     # remove the temporary file
     os.remove("./test.wav")
 
-    return tuple(zip(clapping_starts, clapping_ends))
+    # logical intuition: removing possibly misclassified predictions that are smaller than a few seconds
+    i = 0
+    result = []
+    while (i < len(clapping_starts)):
+        clap_starts = clapping_starts[i]
+        clap_ends = clapping_ends[i]
+        if (clap_ends - clap_starts > logical_duration):
+            result.append((clap_starts, clap_ends))
+        i += 1
+
+    return result
 
 def export_result(clapping_list: list, audio_file_path: str) -> None:
     
+    audio_file_name = audio_file_path.replace(".mp3", "")
+
     i = 0
     while (i < len(clapping_list) - 1):
         
@@ -205,7 +219,7 @@ def export_result(clapping_list: list, audio_file_path: str) -> None:
         # trim
         audio = AudioSegment.from_file(audio_file_path, format="mp3")
         trimmed_audio = audio[int(start_of_music * 1000):int(end_of_music * 1000)]
-        trimmed_audio.export(f"result{i}.mp3", format="mp3")
+        trimmed_audio.export(f"{audio_file_name}_result{i}.mp3", format="mp3")
         
         i += 1
 
