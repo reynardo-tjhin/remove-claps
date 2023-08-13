@@ -28,7 +28,7 @@ if (__name__ == "__main__"):
     os.chdir("../")
 
     # get the youtube links
-    links_data = pd.read_csv("music_links.csv")
+    links_data = pd.read_csv("./csv/music_links.csv")
     yt_links = links_data.iloc[:, 1].to_list()
 
     # check if the directory "audio" exists
@@ -79,7 +79,7 @@ if (__name__ == "__main__"):
         os.makedirs("data/no")
 
     # create the classes of yes and no
-    data = pd.read_csv("new_dataset.csv")
+    data = pd.read_csv("./csv/new_dataset.csv")
 
     # duration based on exploration.ipynb
     duration = 1.8 # in seconds

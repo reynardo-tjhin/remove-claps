@@ -4,42 +4,9 @@ import librosa
 import numpy as np
 import pandas as pd
 import math
-from pytube import YouTube
-from moviepy.editor import AudioFileClip
+import argparse
 from pydub import AudioSegment
 from sklearn.preprocessing import StandardScaler
-
-def download_youtube_mp3(name: str, yt_link: str) -> None:
-    """
-    Download a youtube audio only video.
-    Automatically converted to mp3.
-    The file can be seen in the main directory (not inside src).
-
-    :param name: the name of the song to be exported in mp3
-    :param yt_link: the youtube link
-    """
-    # download
-    print("Downloading...")
-    yt = YouTube(yt_link)
-    stream = yt.streams.get_by_itag(140)
-    stream.download(filename=f'{name}.mp4')
-
-    # convert from mp4 to mp3
-    print("Converting from mp4 to mp3...")
-    VIDEO_FILE_PATH = f"./{name}.mp4"
-    AUDIO_FILE_PATH = f"./{name}.mp3"
-
-    FILETOCONVERT = AudioFileClip(VIDEO_FILE_PATH)
-    FILETOCONVERT.write_audiofile(AUDIO_FILE_PATH)
-    FILETOCONVERT.close()
-
-    # remove the mp4 file
-    os.remove(f"{name}.mp4")
-
-    # move file to main directory
-    os.rename(f"./{name}.mp3", f"../{name}.mp3")
-
-    return None
 
 def build_audio_features(audio_file_path: str) -> np.ndarray:
     """
@@ -97,9 +64,9 @@ def build_audio_features(audio_file_path: str) -> np.ndarray:
 
     return features
 
-def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../models/MLPClassifier.pickle"):
+def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../models/MLPClassifier.pickle") -> list:
     """
-    11 models that can be used:
+    10 models that can be used:
     1. SVC
     2. ExtraTreesClassifier
     3. LinearDiscriminantAnalysis
@@ -110,7 +77,6 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
     8. AdaBoostClassifier
     9. NuSVC
     10. GaussianNB
-    11. QuadraticDiscriminantAnalysis
 
     :param audio_file_path: the path to the mp3 audio
     :param step: to clean the claps in order not to be in multiples of duration (in seconds)
@@ -121,7 +87,7 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
     """
 
     # get the data
-    dataset = pd.read_csv("../data-features/data.csv")
+    dataset = pd.read_csv("./data-features/data.csv")
     X = dataset.iloc[:, 1:-1].values # independent variables: the features
 
     # perform feature scaling
@@ -152,11 +118,15 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
         # split audio
         sound = audio[start_time*1000:(start_time + duration)*1000]
         sound.export("test.wav", format="wav")
-        features = build_audio_features("test.wav")
+        features = build_audio_features("./test.wav")
         features = sc.transform(features)
 
         # get prediction
         prediction = model.predict(features)
+
+        # print the output
+        print("%.2f to %.2f -> %s" % (start_time, start_time+duration, str(prediction)))
+
         if (prediction == 1):
 
             # the first of block of clapping sound
@@ -168,6 +138,10 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
 
                     new_start = start_time - step
                     while (prediction != 0):
+
+                        if (new_start < 0 or math.isclose(new_start, 0.0)):
+                            new_start = 0.0
+                            break
 
                         sound = audio[new_start*1000:(new_start + duration)*1000]
                         sound.export("test.wav", format="wav")
@@ -196,6 +170,10 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
                 new_start = start_time - step
                 while (prediction != 1):
 
+                    if (new_start < 0 or math.isclose(new_start, 0.0)):
+                        new_start = 0.0
+                        break
+
                     sound = audio[new_start*1000:(new_start + duration)*1000]
                     sound.export("test.wav", format="wav")
                     features = build_audio_features("test.wav")
@@ -206,10 +184,7 @@ def remove_claps(audio_file_path: str, step=0.05, duration=1.8, model_path="../m
                 clapping_ends.append(new_start)
             
             is_clapping = False
-
-        # print the output
-        # print("%.2f to %.2f -> %s" % (start_time, start_time+duration, str(prediction)))
-
+        
         # update start_time
         start_time += duration
 
@@ -231,18 +206,23 @@ def export_result(clapping_list: list, audio_file_path: str) -> None:
         audio = AudioSegment.from_file(audio_file_path, format="mp3")
         trimmed_audio = audio[int(start_of_music * 1000):int(end_of_music * 1000)]
         trimmed_audio.export(f"result{i}.mp3", format="mp3")
-
-        # move to the main directory
-        os.rename(f"./result{i}.mp3", f"../result{i}.mp3")
         
         i += 1
 
 
-
 if (__name__ == "__main__"):
-    
-    audio_file_path = "../sample.mp3"
-    model_file_path = "../models/MLPClassifier.pickle"
+
+    parser = argparse.ArgumentParser(description='Remove claps from MP3 file')
+    parser.add_argument('-f', '--file',
+                        action='store',
+                        required=True,
+                        nargs=1,
+                        type=str,
+                        help='provide the name of the MP3 file in the current directory')
+    args = parser.parse_args()
+
+    audio_file_path = args.file[0] + ".mp3"
+    model_file_path = "./models/MLPClassifier.pickle"
 
     print("Finding the clapping time(s)...")
     result = remove_claps(audio_file_path=audio_file_path, model_path=model_file_path)
