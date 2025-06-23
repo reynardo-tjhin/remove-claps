@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import math
 import argparse
+
 from pydub import AudioSegment
 from sklearn.preprocessing import StandardScaler
 
@@ -96,12 +97,17 @@ def remove_claps(audio_file_path: str, step=0.05,
     sc = StandardScaler()
     X = sc.fit_transform(X)
     
+    if (not os.path.exists(audio_file_path)):
+        print("Error: audio file does not exist")
+        return
+
     # get the audio
     audio = AudioSegment.from_file(audio_file_path, format="mp3")
     start_time = 0
     end_time = len(audio) / 1000 # in seconds
 
     # get the model
+    print("getting the model")
     with open(model_path, 'rb') as model_file:
         model = pickle.load(model_file)
 
@@ -110,6 +116,7 @@ def remove_claps(audio_file_path: str, step=0.05,
     is_clapping = False
 
     # main loop
+    print("running the loops")
     is_not_finished = True
     while (is_not_finished):
 

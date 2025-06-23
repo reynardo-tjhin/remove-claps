@@ -8,4 +8,4 @@ then
     exit
 fi
 
-python3 ./src/remove_claps.py -f $FILENAME
+python ./src/remove_claps.py -f $FILENAME

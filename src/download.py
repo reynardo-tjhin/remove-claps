@@ -1,7 +1,9 @@
-from pytube import YouTube
-from moviepy.editor import AudioFileClip
+from moviepy import *
+from youtube_dl.utils import std_headers
+
 import os
 import argparse
+import youtube_dl
 
 def download_youtube_mp3(name: str, yt_link: str) -> None:
     """
@@ -12,29 +14,57 @@ def download_youtube_mp3(name: str, yt_link: str) -> None:
     :param name: the name of the song to be exported in mp3
     :param yt_link: the youtube link
     """
-    try:
-        # download
-        print(f"Downloading '{yt_link}' as '{name}.mp3'")
-        yt = YouTube(yt_link)
-        stream = yt.streams.get_by_itag(140)
-        stream.download(filename=f'{name}.mp4')
-    except (Exception):
-        print("Error: the YouTube link is either invalid, incorrect or the video is private/deleted.")
-        return None
+    print(f"Downloading from: {yt_link}")
+    print(f"Saving as: {name}.mp3")
 
-    # convert from mp4 to mp3
+    # work around to prevent bot error
+    std_headers['User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+    # some configurations that can be used to download yt video
+    ydl_opts = {
+        'verbose': True,
+        'noplaylist': True,
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        
+        # get the filename
+        info = ydl.extract_info(yt_link, download=False)
+        filename = ydl.prepare_filename(info)
+        extension = info.get("ext")
+
+        # download the video as mp4
+        print(f"Downloading from '{yt_link}' as '{filename}'")
+        ydl.download([yt_link])
+
+    # filename = "Rachmaninov Piano Concerto No  2, Evgeny Kissin HD-l4zkc7KEvYM.mp4"
+
+    if (filename == "" or filename == None):
+        print("Error: reading filename")
+        return
+
+    # print(os.path.exists(filename))
+
+    if (not os.path.exists(os.path.join(os.path.curdir, filename))):
+        print("Error: download unsuccessful")
+        return
+
+    # rename to temp.mp4
+    old = os.path.join(os.path.curdir, f"{filename}")
+    new = os.path.join(os.path.curdir, f"temp.{extension}")
+    if not os.path.exists(new):
+        os.rename(old, new)
+
+    # convert mp4 to mp3
     print("Converting from mp4 to mp3...")
-    VIDEO_FILE_PATH = f"./{name}.mp4"
-    AUDIO_FILE_PATH = f"./{name}.mp3"
-
-    FILETOCONVERT = AudioFileClip(VIDEO_FILE_PATH)
-    FILETOCONVERT.write_audiofile(AUDIO_FILE_PATH)
+    FILETOCONVERT = AudioFileClip(f"temp.{extension}")
+    FILETOCONVERT.write_audiofile(f"{name}.mp3")
     FILETOCONVERT.close()
 
-    # remove the mp4 file
-    os.remove(f"{name}.mp4")
+    # remove the mp4 file if exists
+    if (os.path.exists(os.path.join(os.path.curdir, f"temp.{extension}"))):
+        os.remove(f"temp.{extension}")
 
-    return None
+    return
 
 if (__name__ == "__main__"):
     
