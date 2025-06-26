@@ -19,14 +19,17 @@ The dataset is sourced by downloading video audio from YouTube (from 'music_link
 
 ## How to try
 
-**you need to download ffmpeg
+1. Create a virtual environment. Run `python -m venv .venv`
+2. Install the dependencies in requirements.txt. Run `python -m pip install -r requirements.txt`
+3. If you wish to download YouTube videos using the ./download.* tool, you will need to install ffmpeg. `youtube_dl` library needs an executable ffmpeg (for e.g. `.exe` in Windows) to run the conversion from `.mp4` to `.mp3` or the likes. You may need to put the executable file in the environment variable.
+4. (Optional) Download the audios from YouTube by executing `./download.sh`. Simply change the link and the name that you wish to use in the `.download.sh` file. This command runs 'download.py' from the 'src' folder.
+5. The models are pre-trained, simplifying the process to a single step: execute './remove_claps.sh [FILENAME]'. This command runs 'remove_claps.py' from the 'src' folder, generating an audio file named 'result[no].mp3' as the output.
+6. The output may not be perfect in terms of cleanliness, but it successfully aligns with the intended goal.
 
-1. Download the audios from YouTube by executing './download.sh [YOUTUBE_LINK] [DESIRED_FILE_NAME]'. This command runs 'download.py' from the 'src' folder.
-2. The models are pre-trained, simplifying the process to a single step: execute './remove_claps.sh [FILENAME]'. This command runs 'remove_claps.py' from the 'src' folder, generating an audio file named 'result[no].mp3' as the output.
-3. The output may not be perfect in terms of cleanliness, but it successfully aligns with the intended goal.
+*This repository is not the best repository to work in all platforms.
 
 Some youtube links to try:
 
-- [Yuja Wang - Turkish March Mozart (Encore)](https://www.youtube.com/watch?v=pHM52-QR-e0)
+- [SCHUBERT - Impromptu n°3 (Horowitz)](https://www.youtube.com/watch?v=FxhbAGwEYGQ&list=RDFxhbAGwEYGQ))
 - [Piano Recital - Mozart, Chopin, Schumann and Rachmaninoff - Anna Fedorova](https://www.youtube.com/watch?v=V5cerHBgMDw)
 - [Mozart: Violin Concerto No.3 - Hilary Hahn /Gustavo Dudamel /Stuttgart Radio Symphony Orchestra](https://www.youtube.com/watch?v=IhQAtkXOK6o)

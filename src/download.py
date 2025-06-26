@@ -42,8 +42,6 @@ def download_youtube_mp3(name: str, yt_link: str) -> None:
         print("Error: reading filename")
         return
 
-    # print(os.path.exists(filename))
-
     if (not os.path.exists(os.path.join(os.path.curdir, filename))):
         print("Error: download unsuccessful")
         return
